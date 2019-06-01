@@ -1,0 +1,15 @@
+{
+    "id": "b6b4524c-7fd7-4f05-971c-14ad8d25217a",
+    "version": "1.0.0",
+    "requiredApiVersion": "^1.4.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Thomas Gardner",
+        "homepage": "https://github.com/tgardner851",
+        "support": "https://github.com/tgardner851/Rocket.Chat.App-Put.io"
+    },
+    "name": "Put.io",
+    "nameSlug": "putio",
+    "classFile": "PutIoApp.ts",
+    "description": "Interact with your Put.io Account."
+}

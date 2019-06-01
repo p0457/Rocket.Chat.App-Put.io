@@ -1,0 +1,10 @@
+{
+  "customize_name": "Customize Name",
+  "customize_name_description": "Choose the username that this app will post as.",
+  "customize_icon": "Customize Icon",
+  "customize_icon_description": "Choose the icon that is used for messages from this app.",
+  "customize_postto": "Channel to Post To",
+  "customize_postto_description": "Channel (or Username) to post webhook content to. Required.",
+  "slashcommand_params": "help",
+  "slashcommand_description": "Shows all Put.Io App commands"
+}
