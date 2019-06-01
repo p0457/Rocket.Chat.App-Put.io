@@ -5,8 +5,8 @@ import { formatBytes } from '../lib/helpers/bytesConverter';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 
-export class WebhookEndpoint extends ApiEndpoint {
-    public path = 'webhook';
+export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
+    public path = 'transfercomplete';
 
     public async post(
         request: IApiRequest,
