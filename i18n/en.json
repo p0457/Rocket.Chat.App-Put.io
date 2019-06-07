@@ -5,6 +5,14 @@
   "customize_icon_description": "Choose the icon that is used for messages from this app.",
   "customize_postto": "Channel to Post To",
   "customize_postto_description": "Channel (or Username) to post webhook content to. Required.",
-  "slashcommand_params": "help",
-  "slashcommand_description": "Shows all Put.Io App commands"
+  "customize_clientid": "Client Id",
+  "customize_clientid_description": "",
+  "customize_clientsecret": "Client Secret",
+  "customize_clientsecret_description": "",
+  "slashcommand_params": "",
+  "slashcommand_description": "Shows all Put.io App commands",
+  "slashcommand_login_params": "",
+  "slashcommand_login_description": "Login to Put.io",
+  "slashcommand_settoken_params": "[TOKEN]",
+  "slashcommand_settoken_description": "Store your auth token from Put.io"
 }

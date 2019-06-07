@@ -1,16 +1,19 @@
 import {
-  IConfigurationExtend, IEnvironmentRead, ILogger,
+  IAppAccessors, IConfigurationExtend, IEnvironmentRead, ILogger,
 } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { PutIoCommand } from './commands/PutIoCommand';
+import { PutIoLoginCommand } from './commands/PutIoLoginCommand';
+import { PutIoSetTokenCommand } from './commands/PutIoSetTokenCommand';
+import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
 import { TransferCompleteWebhookEndpooint } from './endpoints/transferCompleteWebhook';
 
 export class PutIoApp extends App {
-    constructor(info: IAppInfo, logger: ILogger) {
-        super(info, logger);
+    constructor(info: IAppInfo, logger: ILogger, accessors?: IAppAccessors) {
+        super(info, logger, accessors);
     }
 
     protected async extendConfiguration(configuration: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
@@ -50,6 +53,34 @@ export class PutIoApp extends App {
         endpoints: [new TransferCompleteWebhookEndpooint(this)],
       });
 
-      // await configuration.slashCommands.provideSlashCommand(new PutIoCommand(this));
+      await configuration.api.provideApi({
+        visibility: ApiVisibility.PUBLIC,
+        security: ApiSecurity.UNSECURE,
+        endpoints: [new OAuthWebhookEndpooint(this)],
+      });
+
+      await configuration.settings.provideSetting({
+        id: 'putio_clientid',
+        type: SettingType.STRING,
+        packageValue: '',
+        required: true,
+        public: false,
+        i18nLabel: 'customize_clientid',
+        i18nDescription: 'customize_clientid_description',
+      });
+
+      await configuration.settings.provideSetting({
+        id: 'putio_clientsecret',
+        type: SettingType.STRING,
+        packageValue: '',
+        required: true,
+        public: false,
+        i18nLabel: 'customize_clientsecret',
+        i18nDescription: 'customize_clientsecret_description',
+      });
+
+      await configuration.slashCommands.provideSlashCommand(new PutIoCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoLoginCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoSetTokenCommand(this));
     }
 }
