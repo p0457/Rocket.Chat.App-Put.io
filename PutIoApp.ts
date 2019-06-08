@@ -7,6 +7,7 @@ import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { PutIoAddCommand } from './commands/PutIoAddCommand';
 import { PutIoCommand } from './commands/PutIoCommand';
+import { PutIoFilesListCommand } from './commands/PutIoFilesListCommand';
 import { PutIoLoginCommand } from './commands/PutIoLoginCommand';
 import { PutIoSetTokenCommand } from './commands/PutIoSetTokenCommand';
 import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
@@ -74,5 +75,6 @@ export class PutIoApp extends App {
       await configuration.slashCommands.provideSlashCommand(new PutIoLoginCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoSetTokenCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoAddCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoFilesListCommand(this));
     }
 }

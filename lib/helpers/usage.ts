@@ -14,4 +14,9 @@ export default {
     usage: '`/putio-add [MAGNET LINK]`',
     description: 'Add a magnet link to your Put.io',
   },
+  fiesList: {
+    command: 'putio-files-list',
+    usage: '`/putio-files-list (DIRECTORY ID) (p=##)`',
+    description: 'List files by directory (leave directory id empty to browse the root level; results are limited to 20 per page)',
+  },
 };

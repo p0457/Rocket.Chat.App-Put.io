@@ -14,5 +14,7 @@
   "slashcommand_settoken_params": "[TOKEN]",
   "slashcommand_settoken_description": "Store your auth token from Put.io",
   "slashcommand_add_params": "[MAGNET LINK]",
-  "slashcommand_add_description": "Add a magnet link to your Put.io"
+  "slashcommand_add_description": "Add a magnet link to your Put.io",
+  "slashcommand_fileslist_params": "(DIRECTORY ID) (p=##)",
+  "slashcommand_fileslist_description": "List files by directory (leave directory id empty to browse the root level; results are limited to 20 per page)"
 }
