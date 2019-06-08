@@ -16,5 +16,7 @@
   "slashcommand_add_params": "[MAGNET LINK]",
   "slashcommand_add_description": "Add a magnet link to your Put.io",
   "slashcommand_fileslist_params": "(DIRECTORY ID) (p=##)",
-  "slashcommand_fileslist_description": "List files by directory (leave directory id empty to browse the root level; results are limited to 20 per page)"
+  "slashcommand_fileslist_description": "List files by directory (leave directory id empty to browse the root level; results are limited to 10 per page)",
+  "slashcommand_transferslist_params": "(NAME) (filters=(finished,unfinished,error)) (p=##)",
+  "slashcommand_transferslist_description": "List files by directory (leave directory id empty to browse the root level; results are limited to 10 per page; filters optionally filter results)"
 }

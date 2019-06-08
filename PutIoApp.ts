@@ -10,6 +10,7 @@ import { PutIoCommand } from './commands/PutIoCommand';
 import { PutIoFilesListCommand } from './commands/PutIoFilesListCommand';
 import { PutIoLoginCommand } from './commands/PutIoLoginCommand';
 import { PutIoSetTokenCommand } from './commands/PutIoSetTokenCommand';
+import { PutIoTransfersListCommand } from './commands/PutIoTransfersListCommand';
 import { OAuthWebhookEndpooint } from './endpoints/oauthWebhook';
 import { TransferCompleteWebhookEndpooint } from './endpoints/transferCompleteWebhook';
 
@@ -76,5 +77,6 @@ export class PutIoApp extends App {
       await configuration.slashCommands.provideSlashCommand(new PutIoSetTokenCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoAddCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoFilesListCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoTransfersListCommand(this));
     }
 }

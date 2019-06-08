@@ -4,7 +4,7 @@ import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { AppPersistence } from '../persistence';
 import { formatBytes } from './bytesConverter';
-import { formatDate } from './dates';
+import { formatDate, timeSince } from './dates';
 import usage from './usage';
 
 export async function sendNotification(text: string, read: IRead, modify: IModify, user: IUser, room: IRoom): Promise<void> {
@@ -292,6 +292,153 @@ export async function sendFilesList(files, read: IRead, modify: IModify, user: I
         },
         thumbnailUrl: file.icon,
         imageUrl: file.screenshot ? file.screenshot : '',
+        actions,
+        actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+        text,
+      },
+    );
+  });
+
+  await this.sendNotificationMultipleAttachments(attachments, read, modify, user, room);
+}
+
+export async function sendTransfersList(transfers, read: IRead, modify: IModify, user: IUser, room: IRoom, persis: IPersistence) {
+  const attachments = new Array<IMessageAttachment>();
+
+  const resultsActions = new Array<IMessageAction>();
+  if (transfers._CurrentPage > 1) {
+    resultsActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Previous Page',
+      msg: transfers._Command.trim() + ' p=' + (transfers._CurrentPage - 1).toString(),
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  if (transfers._Pages > transfers._CurrentPage) {
+    resultsActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Next Page',
+      msg: transfers._Command.trim() + ' p=' + (transfers._CurrentPage + 1).toString(),
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  resultsActions.push({
+    type: MessageActionType.BUTTON,
+    text: 'Search Again',
+    msg: transfers._Command,
+    msg_in_chat_window: true,
+    msg_processing_type: MessageProcessingType.RespondWithMessage,
+  });
+
+  // Initial attachment for results count
+  let resultsText = transfers._Query ? ('*Query: *`' + transfers._Query.trim() + '`') : '';
+  resultsText += '\n*Current Page* ' + transfers._CurrentPage;
+  resultsText += '\n*Pages* ' + transfers._Pages;
+  if (resultsText.startsWith('\n')) {
+    resultsText = resultsText.substring(1, resultsText.length); // Remove first '\n'
+  }
+
+  attachments.push({
+    collapsed: false,
+    color: '#00CE00',
+    title: {
+      value: 'Results (' + transfers._FullCount + ')',
+    },
+    text: resultsText,
+    actions: resultsActions,
+    actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+  });
+
+  transfers.transfers.forEach((transfer) => {
+    // FIELDS
+    const fields = new Array<IMessageAttachmentField>();
+
+    fields.push({
+      short: true,
+      title: 'Created',
+      value: `${formatDate(transfer.created_at)}\n(${timeSince(transfer.created_at)})`,
+    });
+    if (transfer.tracker) {
+      fields.push({
+        short: true,
+        title: 'Tracker',
+        value: transfer.tracker,
+      });
+    }
+    fields.push({
+      short: true,
+      title: 'Size',
+      value: `${formatBytes(transfer.size)}`,
+    });
+    fields.push({
+      short: true,
+      title: 'Downloaded/Uploaded',
+      // tslint:disable-next-line:max-line-length
+      value: `${formatBytes(transfer.downloaded)} @ ${formatBytes(transfer.down_speed)}/sec\n${formatBytes(transfer.uploaded)} @ ${formatBytes(transfer.up_speed)}/sec`,
+    });
+    fields.push({
+      short: true,
+      title: 'Ratio',
+      value: transfer.current_ratio,
+    });
+    fields.push({
+      short: true,
+      title: 'Peers',
+      // tslint:disable-next-line:max-line-length
+      value: transfer.peers_connected.toString() !== '0' ? `${transfer.peers_connected} (${transfer.peers_sending_to_us} active in / ${transfer.peers_getting_from_us} active out)` : `0`,
+    });
+
+    // ACTIONS
+    const actions = new Array<IMessageAction>();
+
+    // TEXT
+    let text = `*Status: *${transfer.status_message.replace('\n', ' ')}`;
+    if (transfer.estimated_time) {
+      text += `\n*ETA: *${transfer.estimated_time}`;
+    }
+    if (transfer.finished_at) {
+      text += `\n*Finished At *${formatDate(transfer.finished_at)}`;
+    }
+
+    // INDEX FOR DISPLAY
+    let indexDisplay = transfer._IndexDisplay.toString();
+    if (transfers._FullCount >= 1000) {
+      if (transfer._IndexDisplay < 10) {
+        indexDisplay = `000${transfer._IndexDisplay.toString()}`;
+      } else if (transfer._IndexDisplay < 100) {
+        indexDisplay = `00${transfer._IndexDisplay.toString()}`;
+      } else if (transfer._IndexDisplay < 1000) {
+        indexDisplay = `0${transfer._IndexDisplay.toString()}`;
+      }
+    } else if (transfers._FullCount >= 100) {
+      if (transfer._IndexDisplay < 10) {
+        indexDisplay = `00${transfer._IndexDisplay.toString()}`;
+      } else if (transfer._IndexDisplay < 100) {
+        indexDisplay = `0${transfer._IndexDisplay.toString()}`;
+      }
+    } else if (transfers._FullCount >= 10) {
+      if (transfer._IndexDisplay < 10) {
+        indexDisplay = `0${transfer._IndexDisplay.toString()}`;
+      }
+    }
+
+    // ATTACHMENT TITLE
+    if (transfer.status === 'COMPLETED' || transfer.status === 'SEEDING') {
+      transfer.completion_percent = 100;
+    }
+    const title = `(#${indexDisplay}) [${transfer.status} ${transfer.completion_percent}%] ${transfer.name}`;
+
+    attachments.push(
+      {
+        collapsed: false,
+        color: '#fdcd44',
+        title: {
+          value: title,
+          link: transfer.torrent_link,
+        },
+        fields,
         actions,
         actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
         text,

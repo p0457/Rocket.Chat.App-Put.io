@@ -14,9 +14,15 @@ export default {
     usage: '`/putio-add [MAGNET LINK]`',
     description: 'Add a magnet link to your Put.io',
   },
-  fiesList: {
+  filesList: {
     command: 'putio-files-list',
     usage: '`/putio-files-list (DIRECTORY ID) (p=##)`',
-    description: 'List files by directory (leave directory id empty to browse the root level; results are limited to 20 per page)',
+    description: 'List files by directory (leave directory id empty to browse the root level; results are limited to 10 per page)',
+  },
+  transfersList: {
+    command: 'putio-transfers-list',
+    usage: '`/putio-transfers-list (NAME) (filters=(finished,unfinished,error)) (p=##)`',
+    // tslint:disable-next-line:max-line-length
+    description: 'List files by directory (leave directory id empty to browse the root level; results are limited to 10 per page; filters optionally filter results)',
   },
 };
