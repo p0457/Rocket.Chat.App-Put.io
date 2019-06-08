@@ -393,6 +393,16 @@ export async function sendTransfersList(transfers, read: IRead, modify: IModify,
     // ACTIONS
     const actions = new Array<IMessageAction>();
 
+    if (transfer.status === 'ERROR') {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Retry',
+        msg: `/putio-transfer-retry ${transfer.id}`,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    }
+
     // TEXT
     let text = `*Status: *${transfer.status_message.replace('\n', ' ')}`;
     if (transfer.estimated_time) {
