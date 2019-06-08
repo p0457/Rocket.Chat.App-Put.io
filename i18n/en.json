@@ -14,5 +14,7 @@
   "slashcommand_login_params": "",
   "slashcommand_login_description": "Login to Put.io",
   "slashcommand_settoken_params": "[TOKEN]",
-  "slashcommand_settoken_description": "Store your auth token from Put.io"
+  "slashcommand_settoken_description": "Store your auth token from Put.io",
+  "slashcommand_add_params": "[MAGNET LINK]",
+  "slashcommand_add_description": "Add a magnet link to your Put.io"
 }

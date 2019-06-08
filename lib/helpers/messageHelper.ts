@@ -1,7 +1,8 @@
-import { IModify, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IMessageAttachment, MessageActionButtonsAlignment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
 import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { AppPersistence } from '../persistence';
 import { formatBytes } from './bytesConverter';
 import usage from './usage';
 
@@ -61,6 +62,22 @@ export async function sendUsage(read: IRead, modify: IModify, user: IUser, room:
   return;
 }
 
+export async function sendTokenExpired(read: IRead, modify: IModify, user: IUser, room: IRoom, persis: IPersistence): Promise<void> {
+  const persistence = new AppPersistence(persis, read.getPersistenceReader());
+  const userThumbUrl = await persistence.getUserAvatarUrl(user);
+  await sendNotificationMultipleAttachments([
+      {
+      collapsed: false,
+      color: '#e10000',
+      thumbnailUrl: userThumbUrl,
+      title: {
+        value: 'Token Expired!',
+      },
+      text: 'Please login again using `/putio-login`',
+    },
+  ], read, modify, user, room);
+}
+
 export async function sendAccountInfo(accountInfo, read: IRead, modify: IModify, user: IUser, room: IRoom) {
   const username = accountInfo.username;
   const avatarUrl = accountInfo.avatar_url;
@@ -116,6 +133,41 @@ export async function sendAccountInfo(accountInfo, read: IRead, modify: IModify,
       thumbnailUrl: avatarUrl,
       fields,
       text,
+    },
+  ], read, modify, user, room);
+}
+
+export async function sendSuccessfulTransferAdd(data, read: IRead, modify: IModify, user: IUser, room: IRoom, persis: IPersistence) {
+  const persistence = new AppPersistence(persis, read.getPersistenceReader());
+  const avatarUrl = await persistence.getUserAvatarUrl(user);
+
+  const fileName = data.name;
+  const fileSize = formatBytes(data.size);
+  const link = data.torrent_link;
+
+  const fields = new Array();
+
+  fields.push({
+    short: true,
+    title: 'Hash',
+    value: `${data.hash}`,
+  });
+  fields.push({
+    short: true,
+    title: 'File Size',
+    value: `${fileSize}`,
+  });
+
+  await this.sendNotificationMultipleAttachments([
+    {
+      collapsed: false,
+      color: '#fdcd44',
+      title: {
+        value: `Transfer Started! [${fileName}]`,
+        link,
+      },
+      thumbnailUrl: avatarUrl,
+      fields,
     },
   ], read, modify, user, room);
 }

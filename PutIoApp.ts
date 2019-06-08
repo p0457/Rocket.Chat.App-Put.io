@@ -5,6 +5,7 @@ import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
+import { PutIoAddCommand } from './commands/PutIoAddCommand';
 import { PutIoCommand } from './commands/PutIoCommand';
 import { PutIoLoginCommand } from './commands/PutIoLoginCommand';
 import { PutIoSetTokenCommand } from './commands/PutIoSetTokenCommand';
@@ -82,5 +83,6 @@ export class PutIoApp extends App {
       await configuration.slashCommands.provideSlashCommand(new PutIoCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoLoginCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoSetTokenCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoAddCommand(this));
     }
 }

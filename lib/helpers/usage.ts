@@ -9,4 +9,9 @@ export default {
     usage: '`/putio-token [TOKEN]`',
     description: 'Store your auth token from Put.io',
   },
+  add: {
+    command: 'putio-add',
+    usage: '`/putio-add [MAGNET LINK]`',
+    description: 'Add a magnet link to your Put.io',
+  },
 };

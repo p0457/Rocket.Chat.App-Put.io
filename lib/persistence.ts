@@ -21,6 +21,22 @@ export class AppPersistence {
     return result ? (result as any).token : undefined;
   }
 
+  public async setUserAvatarUrl(avatarUrl: string, user: IUser): Promise<void> {
+    const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+    const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'putio-avatar');
+
+    await this.persistence.updateByAssociations([userAssociation, typeAssociation], { avatarUrl }, true);
+  }
+
+  public async getUserAvatarUrl(user: IUser): Promise<string | undefined> {
+    const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+    const typeAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'putio-avatar');
+
+    const [result] = await this.persistenceRead.readByAssociations([userAssociation, typeAssociation]);
+
+    return result ? (result as any).avatarUrl : undefined;
+  }
+
   /* KEYWORDS MODEL
   [
     {

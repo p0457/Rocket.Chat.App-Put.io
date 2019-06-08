@@ -60,6 +60,8 @@ export class PutIoSetTokenCommand implements ISlashCommand {
       return;
     }
 
+    await persistence.setUserAvatarUrl(accountInfo.info.avatar_url, context.getSender());
+
     await msgHelper.sendNotificationMultipleAttachments([
       {
         collapsed: false,
