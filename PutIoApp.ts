@@ -38,16 +38,6 @@ export class PutIoApp extends App {
         i18nDescription: 'customize_icon_description',
       });
 
-      await configuration.settings.provideSetting({
-        id: 'putio_postto',
-        type: SettingType.STRING,
-        packageValue: '',
-        required: true,
-        public: false,
-        i18nLabel: 'customize_postto',
-        i18nDescription: 'customize_postto_description',
-      });
-
       await configuration.api.provideApi({
         visibility: ApiVisibility.PRIVATE,
         security: ApiSecurity.UNSECURE,
