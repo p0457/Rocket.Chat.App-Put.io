@@ -1,7 +1,8 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, example, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { IMessageAttachment } from '@rocket.chat/apps-engine/definition/messages';
+import { IMessageAttachment, MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
 import { formatBytes } from '../lib/helpers/bytesConverter';
+import { formatDate, timeSince } from '../lib/helpers/dates';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 
@@ -47,6 +48,14 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
             room = await read.getRoomReader().getByName(roomToSend.substring(1, roomToSend.length));
           }
 
+          let cancelText = 'Cancel';
+          if (payload.status === 'SEEDING') {
+            cancelText = 'Stop Seeding';
+          }
+          if (payload.status === 'COMPLETED') {
+            cancelText = 'Clear';
+          }
+
           if (room) {
             const attachments = new Array<IMessageAttachment>();
             attachments.push({
@@ -74,12 +83,32 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
                 {
                   short: true,
                   title: 'Finished',
-                  value: payload.finished_at,
+                  value: formatDate(payload.finished_at),
                 },
                 {
                   short: true,
                   title: 'Created',
-                  value: payload.created_at,
+                  value: `${formatDate(payload.created_at)}\n(${timeSince(payload.created_at)})`,
+                },
+                {
+                  short: true,
+                  title: 'Downloaded/Uploaded',
+                  // tslint:disable-next-line:max-line-length
+                  value: `${formatBytes(payload.downloaded)} @ ${formatBytes(payload.down_speed)}/sec\n${formatBytes(payload.uploaded)} @ ${formatBytes(payload.up_speed)}/sec`,
+                },
+                {
+                  short: true,
+                  title: 'Ratio',
+                  value: payload.current_ratio,
+                },
+              ],
+              actions: [
+                {
+                  type: MessageActionType.BUTTON,
+                  text: cancelText,
+                  msg: `/putio-transfers-cancel ${payload.id}`,
+                  msg_in_chat_window: true,
+                  msg_processing_type: MessageProcessingType.RespondWithMessage,
                 },
               ],
             });

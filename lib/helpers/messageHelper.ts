@@ -423,7 +423,7 @@ export async function sendTransfersList(transfers, read: IRead, modify: IModify,
       text += `\n*ETA: *${transfer.estimated_time}`;
     }
     if (transfer.finished_at) {
-      text += `\n*Finished At *${formatDate(transfer.finished_at)}`;
+      text += `\n*Finished At *${formatDate(transfer.finished_at)} (${timeSince(transfer.finished_at)})`;
     }
 
     // INDEX FOR DISPLAY
