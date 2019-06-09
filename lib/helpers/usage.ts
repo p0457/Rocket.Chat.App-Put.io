@@ -21,7 +21,7 @@ export default {
   },
   transfersList: {
     command: 'putio-transfers-list',
-    usage: '`/putio-transfers-list (NAME) (filters=(finished,unfinished,error)) (p=##)`',
+    usage: '`/putio-transfers-list (NAME) (filters=(finished,unfinished,error,seeding,completed)) (p=##)`',
     // tslint:disable-next-line:max-line-length
     description: 'List files by directory (leave directory id empty to browse the root level; results are limited to 10 per page; filters optionally filter results)',
   },

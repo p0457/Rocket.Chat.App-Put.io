@@ -137,6 +137,14 @@ export class PutIoTransfersListCommand implements ISlashCommand {
             actualResults = actualResults.filter((result) => {
               return result.status === 'SEEDING' || result.status === 'COMPLETED' || result.completion_percent === 100;
             });
+          } else if (filter === 'seeding') {
+            actualResults = actualResults.filter((result) => {
+              return result.status === 'SEEDING';
+            });
+          } else if (filter === 'completed') {
+            actualResults = actualResults.filter((result) => {
+              return result.status === 'COMPLETED';
+            });
           } else if (filter === 'unfinished') {
             actualResults = actualResults.filter((result) => {
               return result.status === 'DOWNLOADING' && result.completio_percent !== 100;
