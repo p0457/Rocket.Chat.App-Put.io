@@ -6,21 +6,27 @@ import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 import { PutIoApp } from '../PutIoApp';
 
-export class PutIoTransferRetryCommand implements ISlashCommand {
-  public command = 'putio-transfer-retry';
-  public i18nParamsExample = 'slashcommand_transferretry_params';
-  public i18nDescription = 'slashcommand_transferretry_description';
+export class PutIoTransfersCancelCommand implements ISlashCommand {
+  public command = 'putio-transfers-cancel';
+  public i18nParamsExample = 'slashcommand_transferscancel_params';
+  public i18nDescription = 'slashcommand_transferscancel_description';
   public providesPreview = false;
 
   public constructor(private readonly app: PutIoApp) {}
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-    const [transferId] = context.getArguments();
-
-    if (!transferId) {
+    const args = context.getArguments();
+    if (!args || args.length === 0) {
       await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Transfer Id not provided!');
       return;
     }
+    await args.forEach(async (arg) => {
+      const tempNumber = Number(arg);
+      if (isNaN(tempNumber)) {
+        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Bad transfer id `' + arg + '`!');
+        return;
+      }
+    });
 
     const persistence = new AppPersistence(persis, read.getPersistenceReader());
     const token = await persistence.getUserToken(context.getSender());
@@ -30,7 +36,7 @@ export class PutIoTransferRetryCommand implements ISlashCommand {
       return;
     }
 
-    const url = 'https://api.put.io/v2/transfers/retry';
+    const url = 'https://api.put.io/v2/transfers/cancel';
     const response = await http.post(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -38,15 +44,9 @@ export class PutIoTransferRetryCommand implements ISlashCommand {
         'Content-Type': 'application/json',
       },
       data: {
-        id: transferId,
+        transfer_ids: args.join(','),
       },
     });
-
-    let responseData;
-
-    if (response.content) {
-      responseData = JSON.parse(response.content);
-    }
 
     if (!response) {
       await msgHelper.sendNotification('Failed to get a valid response!', read, modify, context.getSender(), context.getRoom());
@@ -61,9 +61,7 @@ export class PutIoTransferRetryCommand implements ISlashCommand {
       return;
     }
 
-    const name = responseData.transfer.name;
-
-    await msgHelper.sendNotification('Successfully triggered a retry for `' + name + '`!', read, modify, context.getSender(), context.getRoom());
+    await msgHelper.sendNotification('Successfully ran cancel command on transfer!', read, modify, context.getSender(), context.getRoom());
     return;
   }
 }

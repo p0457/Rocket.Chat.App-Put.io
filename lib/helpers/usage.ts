@@ -30,4 +30,9 @@ export default {
     usage: '`/putio-transfer-retry [TRANSFER ID]`',
     description: 'Retry a transfer using its Id',
   },
+  transfersCancel: {
+    command: 'putio-transfers-cancel',
+    usage: '`/putio-transfers-cancel [TRANSFER ID,TRANSFER ID]`',
+    description: 'Cancels or clears one or more transfers',
+  },
 };

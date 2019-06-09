@@ -402,6 +402,20 @@ export async function sendTransfersList(transfers, read: IRead, modify: IModify,
         msg_processing_type: MessageProcessingType.RespondWithMessage,
       });
     }
+    let cancelText = 'Cancel';
+    if (transfer.status === 'SEEDING') {
+      cancelText = 'Stop Seeding';
+    }
+    if (transfer.status === 'COMPLETED') {
+      cancelText = 'Clear';
+    }
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: cancelText,
+      msg: `/putio-transfers-cancel ${transfer.id}`,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
 
     // TEXT
     let text = `*Status: *${transfer.status_message.replace('\n', ' ')}`;
