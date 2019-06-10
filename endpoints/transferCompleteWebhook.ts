@@ -92,12 +92,6 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
                 },
                 {
                   short: true,
-                  title: 'Downloaded/Uploaded',
-                  // tslint:disable-next-line:max-line-length
-                  value: `${formatBytes(payload.downloaded)} @ ${formatBytes(payload.down_speed)}/sec\n${formatBytes(payload.uploaded)} @ ${formatBytes(payload.up_speed)}/sec`,
-                },
-                {
-                  short: true,
                   title: 'Ratio',
                   value: payload.current_ratio,
                 },
