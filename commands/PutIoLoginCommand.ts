@@ -78,8 +78,8 @@ export class PutIoLoginCommand implements ISlashCommand {
           msg_processing_type: MessageProcessingType.SendMessage,
         },
       ],
-      text: 'You will now need to open a browser to initiate an OAuth authorization. Due to a limitation in the ' +
-        'Rocket.Chat Apps engine API, you will need to manually copy the token. Instructions will follow after ' +
+      text: 'You will now need to open a browser to initiate an OAuth authorization. Due to ridiculous design ' +
+        'decision by the folks at Put.io, you will need to manually copy the token. Instructions will follow after ' +
         'the authorization has completed.',
     };
     await msgHelper.sendNotificationMultipleAttachments([attachment], read, modify, context.getSender(), context.getRoom());

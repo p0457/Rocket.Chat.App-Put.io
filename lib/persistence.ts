@@ -37,15 +37,6 @@ export class AppPersistence {
     return result ? (result as any).avatarUrl : undefined;
   }
 
-  /* KEYWORDS MODEL
-  [
-    {
-      userName: '',
-      authId: '123456'
-    }
-  ]
-  */
-
   public async setAuthAttempts(authObj): Promise<void> {
     authObj = JSON.stringify(authObj);
     const miscAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'putio-authattempt');
