@@ -17,13 +17,15 @@ export class PutIoSetTokenCommand implements ISlashCommand {
   public constructor(private readonly app: PutIoApp) {
     try {
       const accessors = app.getAccessors();
-      const endpoints = accessors.providedApiEndpoints;
-      if (endpoints) {
-        const endpoint = endpoints.find((appEndpoint) => {
-          return appEndpoint.path === 'oauth-callback';
-        });
-        if (endpoint) {
-          this.endpoint = endpoint.computedPath;
+      if (accessors) {
+        const endpoints = accessors.providedApiEndpoints;
+        if (endpoints) {
+          const endpoint = endpoints.find((appEndpoint) => {
+            return appEndpoint.path === 'oauth-callback';
+          });
+          if (endpoint) {
+            this.endpoint = endpoint.computedPath;
+          }
         }
       }
     } catch (e) {
