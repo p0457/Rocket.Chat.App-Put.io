@@ -22,5 +22,9 @@
   "slashcommand_transferretry_params": "[TRANSFER ID]",
   "slashcommand_transferretry_description": "Retry a transfer using its Id",
   "slashcommand_transferscancel_params": "[TRANSFER ID,TRANSFER ID]",
-  "slashcommand_transferscancel_description": "Cancels or clears one or more transfers"
+  "slashcommand_transferscancel_description": "Cancels or clears one or more transfers",
+  "slashcommand_eventslist_params": "(p=##)",
+  "slashcommand_eventslist_description": "List your Put.io events (results are limited to 20 per page)",
+  "slashcommand_eventsclear_params": "",
+  "slashcommand_eventsclear_description": "Clear your Put.io events list"
 }

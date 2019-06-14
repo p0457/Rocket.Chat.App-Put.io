@@ -472,3 +472,124 @@ export async function sendTransfersList(transfers, read: IRead, modify: IModify,
 
   await this.sendNotificationMultipleAttachments(attachments, read, modify, user, room);
 }
+
+export async function sendEventsList(events, read: IRead, modify: IModify, user: IUser, room: IRoom, persis: IPersistence) {
+  const attachments = new Array<IMessageAttachment>();
+
+  const resultActions = new Array<IMessageAction>();
+  if (events._CurrentPage > 1) {
+    resultActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Previous Page',
+      msg: events._Command.trim() + ' p=' + (events._CurrentPage - 1).toString(),
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  if (events._Pages > events._CurrentPage) {
+    resultActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Next Page',
+      msg: events._Command.trim() + ' p=' + (events._CurrentPage + 1).toString(),
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  if (events.events.length > 0) {
+    resultActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Clear all',
+      msg: `/putio-events-clear `,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  attachments.push(
+    {
+      collapsed: false,
+      color: '#fdcd44',
+      title: {
+        value: `Results (${events._FullCount})`,
+      },
+      actions: resultActions,
+      actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+      text: `_Page ${events._CurrentPage} of ${events._Pages}_\n\n_Results are limited to 20 items per page_`,
+    },
+  );
+
+  events.events.forEach((event) => {
+    const fields = new Array<IMessageAttachmentField>();
+
+    let size = '';
+    if (event.type === 'zip_created') {
+      size = event.zip_size;
+    } else if (event.type === 'transfer_completed') {
+      size = event.transfer_size;
+    }
+    const sizeNumber = Number(size);
+    if (!isNaN(sizeNumber)) {
+      size = formatBytes(sizeNumber);
+    }
+    if (size) {
+      fields.push({
+        short: true,
+        title: 'Size',
+        value: size,
+      });
+    }
+
+    if (event.created_at) {
+      fields.push({
+        short: true,
+        title: 'Created',
+        value: `${formatDate(event.created_at)}\n_(${timeSince(event.created_at)})_`,
+      });
+    }
+
+    // INDEX FOR DISPLAY
+    let indexDisplay = event._IndexDisplay.toString();
+    if (events._FullCount >= 1000) {
+      if (event._IndexDisplay < 10) {
+        indexDisplay = `000${event._IndexDisplay.toString()}`;
+      } else if (event._IndexDisplay < 100) {
+        indexDisplay = `00${event._IndexDisplay.toString()}`;
+      } else if (event._IndexDisplay < 1000) {
+        indexDisplay = `0${event._IndexDisplay.toString()}`;
+      }
+    } else if (events._FullCount >= 100) {
+      if (event._IndexDisplay < 10) {
+        indexDisplay = `00${event._IndexDisplay.toString()}`;
+      } else if (event._IndexDisplay < 100) {
+        indexDisplay = `0${event._IndexDisplay.toString()}`;
+      }
+    } else if (events._FullCount >= 10) {
+      if (event._IndexDisplay < 10) {
+        indexDisplay = `0${event._IndexDisplay.toString()}`;
+      }
+    }
+
+    // ATTACHMENT TITLE
+    let title = '';
+    if (event.type === 'zip_created') {
+      title += 'Zip Created';
+    } else if (event.type === 'transfer_completed') {
+      title += `Transfer Completed - ${event.transfer_name}`;
+    } else {
+      title += 'Unknown Event Type';
+    }
+    title = `(#${indexDisplay}) ${title}`;
+
+    attachments.push(
+      {
+        collapsed: true,
+        color: '#fdcd44',
+        title: {
+          value: title,
+        },
+        fields,
+      },
+    );
+  });
+
+  await this.sendNotificationMultipleAttachments(attachments, read, modify, user, room);
+}

@@ -7,6 +7,8 @@ import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { PutIoAddCommand } from './commands/PutIoAddCommand';
 import { PutIoCommand } from './commands/PutIoCommand';
+import { PutIoEventsClearCommand } from './commands/PutIoEventsClearCommand';
+import { PutIoEventsListCommand } from './commands/PutIoEventsListCommand';
 import { PutIoFilesListCommand } from './commands/PutIoFilesListCommand';
 import { PutIoLoginCommand } from './commands/PutIoLoginCommand';
 import { PutIoSetTokenCommand } from './commands/PutIoSetTokenCommand';
@@ -82,5 +84,7 @@ export class PutIoApp extends App {
       await configuration.slashCommands.provideSlashCommand(new PutIoTransfersListCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoTransferRetryCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoTransfersCancelCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoEventsListCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoEventsClearCommand(this));
     }
 }

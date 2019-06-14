@@ -35,4 +35,14 @@ export default {
     usage: '`/putio-transfers-cancel [TRANSFER ID,TRANSFER ID]`',
     description: 'Cancels or clears one or more transfers',
   },
+  eventsList: {
+    command: 'putio-events-list',
+    usage: '`/putio-events-list (p=##)`',
+    description: 'List your Put.io events (results are limited to 20 per page)',
+  },
+  eventsClear: {
+    command: 'putio-events-clear',
+    usage: '`/putio-events-clear`',
+    description: 'Clear your Put.io events list',
+  },
 };
