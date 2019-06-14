@@ -26,5 +26,11 @@
   "slashcommand_eventslist_params": "(p=##)",
   "slashcommand_eventslist_description": "List your Put.io events (results are limited to 20 per page)",
   "slashcommand_eventsclear_params": "",
-  "slashcommand_eventsclear_description": "Clear your Put.io events list"
+  "slashcommand_eventsclear_description": "Clear your Put.io events list",
+  "slashcommand_rsslist_params": "(p=##)",
+  "slashcommand_rsslist_description": "View your Put.io RSS Feeds (results are limited to 20 per page)",
+  "slashcommand_rsspause_params": "[FEED ID]",
+  "slashcommand_rsspause_description": "Pause an RSS Feed",
+  "slashcommand_rssresume_params": "[FEED ID]",
+  "slashcommand_rssresume_description": "Resume an RSS Feed"
 }

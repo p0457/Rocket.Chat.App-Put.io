@@ -11,6 +11,9 @@ import { PutIoEventsClearCommand } from './commands/PutIoEventsClearCommand';
 import { PutIoEventsListCommand } from './commands/PutIoEventsListCommand';
 import { PutIoFilesListCommand } from './commands/PutIoFilesListCommand';
 import { PutIoLoginCommand } from './commands/PutIoLoginCommand';
+import { PutIoRSSListCommand } from './commands/PutIoRSSListCommand';
+import { PutIoRSSPauseCommand } from './commands/PutIoRSSPauseCommand';
+import { PutIoRSSResumeCommand } from './commands/PutIoRSSResumeCommand';
 import { PutIoSetTokenCommand } from './commands/PutIoSetTokenCommand';
 import { PutIoTransferRetryCommand } from './commands/PutIoTransferRetryCommand';
 import { PutIoTransfersCancelCommand } from './commands/PutIoTransfersCancelCommand';
@@ -86,5 +89,8 @@ export class PutIoApp extends App {
       await configuration.slashCommands.provideSlashCommand(new PutIoTransfersCancelCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoEventsListCommand(this));
       await configuration.slashCommands.provideSlashCommand(new PutIoEventsClearCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoRSSListCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoRSSPauseCommand(this));
+      await configuration.slashCommands.provideSlashCommand(new PutIoRSSResumeCommand(this));
     }
 }

@@ -45,4 +45,19 @@ export default {
     usage: '`/putio-events-clear`',
     description: 'Clear your Put.io events list',
   },
+  rssList: {
+    command: 'putio-rss-list',
+    usage: '`/putio-rss-list (p=##)`',
+    description: 'View your Put.io RSS Feeds (results are limited to 20 per page)',
+  },
+  rssPause: {
+    command: 'putio-rss-pause',
+    usage: '`/putio-rss-pause [FEED ID]`',
+    description: 'Pause an RSS Feed',
+  },
+  rssResume: {
+    command: 'putio-rss-resume',
+    usage: '`/putio-rss-resume [FEED ID]`',
+    description: 'Resume an RSS Feed',
+  },
 };

@@ -24,6 +24,8 @@ export class PutIoCommand implements ISlashCommand {
       }
     }
 
+    text += '\n\n_This application is not created by, affiliated with, or supported by Put.io._';
+
     await msgHelper.sendNotificationMultipleAttachments(
       [
         {

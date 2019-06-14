@@ -593,3 +593,144 @@ export async function sendEventsList(events, read: IRead, modify: IModify, user:
 
   await this.sendNotificationMultipleAttachments(attachments, read, modify, user, room);
 }
+
+export async function sendRssList(feeds, read: IRead, modify: IModify, user: IUser, room: IRoom, persis: IPersistence) {
+  const attachments = new Array<IMessageAttachment>();
+
+  const resultActions = new Array<IMessageAction>();
+  if (feeds._CurrentPage > 1) {
+    resultActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Previous Page',
+      msg: feeds._Command.trim() + ' p=' + (feeds._CurrentPage - 1).toString(),
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  if (feeds._Pages > feeds._CurrentPage) {
+    resultActions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Next Page',
+      msg: feeds._Command.trim() + ' p=' + (feeds._CurrentPage + 1).toString(),
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+  attachments.push(
+    {
+      collapsed: false,
+      color: '#fdcd44',
+      title: {
+        value: `Results (${feeds._FullCount})`,
+      },
+      actions: resultActions,
+      actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+      text: `_Page ${feeds._CurrentPage} of ${feeds._Pages}_\n\n_Results are limited to 20 items per page_`,
+    },
+  );
+
+  feeds.feeds.forEach((feed) => {
+    // FIELDS
+    const fields = new Array<IMessageAttachmentField>();
+
+    if (feed.created_at) {
+      fields.push({
+        short: true,
+        title: 'Created',
+        value: `${formatDate(feed.created_at)}\n_(${timeSince(feed.created_at)})_`,
+      });
+    }
+    if (feed.updated_at) {
+      fields.push({
+        short: true,
+        title: 'Updated',
+        value: `${formatDate(feed.updated_at)}\n_(${timeSince(feed.updated_at)})_`,
+      });
+    }
+    if (feed.last_fetch) {
+      fields.push({
+        short: true,
+        title: 'Last Fetched',
+        value: `${formatDate(feed.last_fetch)}\n_(${timeSince(feed.last_fetch)})_`,
+      });
+    }
+
+    // ACTIONS
+    const actions = new Array<IMessageAction>();
+
+    if (feed.paused === true) {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Resume Feed',
+        msg: `/putio-rss-resume ${feed.id} `,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    } else {
+      actions.push({
+        type: MessageActionType.BUTTON,
+        text: 'Pause Feed',
+        msg: `/putio-rss-pause ${feed.id} `,
+        msg_in_chat_window: true,
+        msg_processing_type: MessageProcessingType.RespondWithMessage,
+      });
+    }
+
+    // TEXT
+    let text = '';
+    if (feed.keyword) {
+      text += `*Keyword(s): *${feed.keyword}\n`;
+    }
+    if (feed.unwanted_keywords) {
+      text += `*Unwanted Keyword(s): *${feed.unwanted_keywords}\n`;
+    }
+    if (feed.delete_old_files) {
+      text += `Set to delete old files\n`;
+    }
+    if (feed.paused === true && feed.paused_at) {
+      text += `_Paused at ${formatDate(feed.paused_at)} (${timeSince(feed.paused_at)})_\n`;
+    }
+
+    // INDEX FOR DISPLAY
+    let indexDisplay = feed._IndexDisplay.toString();
+    if (feeds._FullCount >= 1000) {
+      if (feed._IndexDisplay < 10) {
+        indexDisplay = `000${feed._IndexDisplay.toString()}`;
+      } else if (feed._IndexDisplay < 100) {
+        indexDisplay = `00${feed._IndexDisplay.toString()}`;
+      } else if (feed._IndexDisplay < 1000) {
+        indexDisplay = `0${feed._IndexDisplay.toString()}`;
+      }
+    } else if (feeds._FullCount >= 100) {
+      if (feed._IndexDisplay < 10) {
+        indexDisplay = `00${feed._IndexDisplay.toString()}`;
+      } else if (feed._IndexDisplay < 100) {
+        indexDisplay = `0${feed._IndexDisplay.toString()}`;
+      }
+    } else if (feeds._FullCount >= 10) {
+      if (feed._IndexDisplay < 10) {
+        indexDisplay = `0${feed._IndexDisplay.toString()}`;
+      }
+    }
+
+    // ATTACHMENT TITLE
+    const title = `(#${indexDisplay}) ${feed.title}`;
+
+    attachments.push(
+      {
+        collapsed: true,
+        color: '#fdcd44',
+        title: {
+          value: title,
+          link: feed.rss_source_url,
+        },
+        fields,
+        actions,
+        actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+        text,
+      },
+    );
+  });
+
+  await this.sendNotificationMultipleAttachments(attachments, read, modify, user, room);
+}

@@ -1,6 +1,6 @@
 {
     "id": "b6b4524c-7fd7-4f05-971c-14ad8d25217a",
-    "version": "2.0.1",
+    "version": "2.0.6",
     "requiredApiVersion": "^1.4.0",
     "iconFile": "icon.png",
     "author": {
@@ -11,5 +11,5 @@
     "name": "Put.io",
     "nameSlug": "putio",
     "classFile": "PutIoApp.ts",
-    "description": "Interact with your Put.io Account."
+    "description": "Interact with your Put.io Account. This application is not created by, affiliated with, or supported by Put.io."
 }
