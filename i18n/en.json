@@ -32,5 +32,7 @@
   "slashcommand_rsspause_params": "[FEED ID]",
   "slashcommand_rsspause_description": "Pause an RSS Feed",
   "slashcommand_rssresume_params": "[FEED ID]",
-  "slashcommand_rssresume_description": "Resume an RSS Feed"
+  "slashcommand_rssresume_description": "Resume an RSS Feed",
+  "slashcommand_searchfiles_params": "[QUERY] (p=##)",
+  "slashcommand_searchfiles_description": "Search files by query (filter pages using p=##)"
 }

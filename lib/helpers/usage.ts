@@ -60,4 +60,9 @@ export default {
     usage: '`/putio-rss-resume [FEED ID]`',
     description: 'Resume an RSS Feed',
   },
+  searchFiles: {
+    command: 'putio-search-files',
+    usage: '`/putio-search-files [QUERY] (p=##)`',
+    description: 'Search files by query (filter pages using p=##)',
+  },
 };

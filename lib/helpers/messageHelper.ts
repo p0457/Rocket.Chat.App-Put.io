@@ -230,6 +230,17 @@ export async function sendFilesList(files, read: IRead, modify: IModify, user: I
           `\n_Page ${files._CurrentPage} of ${files._Pages}_\n\n_Results are limited to 10 items per page_`,
       },
     );
+  } else {
+    attachments.push(
+      {
+        collapsed: false,
+        color: '#fdcd44',
+        title: {
+          value: `Results: (${files._FullCount})`,
+        },
+        text: `_Page ${files._CurrentPage} of ${files._Pages}_\n\n_Results are limited to 10 items per page_`,
+      },
+    );
   }
 
   files.files.forEach((file) => {
