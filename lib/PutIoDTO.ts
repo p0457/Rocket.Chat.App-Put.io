@@ -1,9 +1,9 @@
 export class PutIoDTO {
   public error = '';
-  public items = new Array<any>();
+  public item;
 
-  public constructor(items?: Array<any>, error?: string) {
-    if (items) this.items = items;
+  public constructor(item?: any, error?: string) {
+    if (item) this.item = item;
     if (error) this.error = error;
   }
 

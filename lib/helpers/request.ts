@@ -3,6 +3,9 @@ import { AppPersistence } from '../persistence';
 import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { IRead, IModify, IHttp, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
 import { PutIoDTO } from '../PutIoDTO';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { IRoom } from '@rocket.chat/apps-engine/definition/rooms';
+import { MessageActionType, MessageProcessingType, MessageActionButtonsAlignment, IMessageAction } from '@rocket.chat/apps-engine/definition/messages';
 
 export async function getRssList(context: SlashCommandContext, read: IRead, http: IHttp, persis: IPersistence, slashCommand: string): Promise<PutIoDTO> {
   const result = new PutIoDTO();
@@ -91,7 +94,7 @@ export async function getRssList(context: SlashCommandContext, read: IRead, http
 
   results._Command = command;
 
-  result.items = results;
+  result.item = results;
   
   return result;
 }
@@ -113,6 +116,85 @@ export async function getAndSendRssList(context: SlashCommandContext, read: IRea
     return;
   }
 
-  await msgHelper.sendRssList(rssResult.items, read, modify, context.getSender(), context.getRoom(), persis);
+  await msgHelper.sendRssList(rssResult.item, read, modify, context.getSender(), context.getRoom(), persis);
+  return;
+}
+
+export async function pauseOrResumeRss(args: string[], pauseOrResume: string, read: IRead, modify: IModify, http: IHttp, persis: IPersistence, user: IUser, room: IRoom): Promise<void> {
+  const [feedId] = args;
+
+  if (!feedId) {
+    await msgHelper.sendUsage(read, modify, user, room, this.command, 'Feed Id not provided!');
+    return;
+  }
+
+  const persistence = new AppPersistence(persis, read.getPersistenceReader());
+  const token = await persistence.getUserToken(user);
+  if (!token) {
+    // tslint:disable-next-line:max-line-length
+    await msgHelper.sendNotification('Token not found! Login using `/putio-login` and then set the token using `/putio-set-token`', read, modify, user, room);
+    return;
+  }
+
+  const url = `https://api.put.io/v2/rss/${feedId}/${pauseOrResume}`;
+
+  const response = await http.post(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response) {
+    await msgHelper.sendNotification('Failed to get a valid response!', read, modify, user, room);
+    return;
+  }
+  if (response.statusCode === 401) {
+    await msgHelper.sendTokenExpired(read, modify, user, room, persis);
+    return;
+  }
+  if (response.statusCode !== 200) {
+    await msgHelper.sendNotification('Failed to get a valid response!', read, modify, user, room);
+    return;
+  }
+
+  const actions = new Array<IMessageAction>();
+  if (pauseOrResume === 'pause') {
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Resume Feed',
+      msg: `/putio-rss-resume ${feedId} `,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  } else if (pauseOrResume === 'resume') {
+    actions.push({
+      type: MessageActionType.BUTTON,
+      text: 'Pause Feed',
+      msg: `/putio-rss-pause ${feedId} `,
+      msg_in_chat_window: true,
+      msg_processing_type: MessageProcessingType.RespondWithMessage,
+    });
+  }
+
+  await msgHelper.sendNotificationMultipleAttachments([{
+    collapsed: false,
+    color: '#fdcd44',
+    title: {
+      value: `Successfully ${pauseOrResume}d RSS Feed!`,
+    },
+    actions,
+    actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+  }], read, modify, user, room);
+  return;
+}
+
+export async function pauseRss(args: string[], read: IRead, modify: IModify, http: IHttp, persis: IPersistence, user: IUser, room: IRoom): Promise<void> {
+  await pauseOrResumeRss(args, 'pause', read, modify, http, persis, user, room);
+  return;
+}
+
+export async function resumeRss(args: string[], read: IRead, modify: IModify, http: IHttp, persis: IPersistence, user: IUser, room: IRoom): Promise<void> {
+  await pauseOrResumeRss(args, 'resume', read, modify, http, persis, user, room);
   return;
 }
