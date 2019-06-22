@@ -1,67 +1,93 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { MessageActionType, MessageProcessingType } from '@rocket.chat/apps-engine/definition/messages';
-import { ISlashCommand, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
+import { ISlashCommand, SlashCommandContext, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandPreviewItemType } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { uuidv4 } from '../lib/helpers/guidCreator';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 import { PutIoApp } from '../PutIoApp';
+import { cancelTransfer, getTransfersList } from '../lib/helpers/request';
 
 export class PutIoTransfersCancelCommand implements ISlashCommand {
   public command = 'putio-transfers-cancel';
   public i18nParamsExample = 'slashcommand_transferscancel_params';
   public i18nDescription = 'slashcommand_transferscancel_description';
-  public providesPreview = false;
+  public providesPreview = true;
 
   public constructor(private readonly app: PutIoApp) {}
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-    const args = context.getArguments();
-    if (!args || args.length === 0) {
-      await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Transfer Id not provided!');
-      return;
-    }
-    await args.forEach(async (arg) => {
-      const tempNumber = Number(arg);
-      if (isNaN(tempNumber)) {
-        await msgHelper.sendUsage(read, modify, context.getSender(), context.getRoom(), this.command, 'Bad transfer id `' + arg + '`!');
-        return;
+    await cancelTransfer(context.getArguments(), read, modify, http, persis, context.getSender(), context.getRoom(), this.command);
+    return;
+  }
+
+  public async previewer(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<ISlashCommandPreview> {
+    const items = Array<ISlashCommandPreviewItem>();
+
+    const transferName = context.getArguments().join(' ');
+
+    let resultsTitle = 'Results for';
+
+    const args = [];
+
+    const transfersResult = await getTransfersList(args, read, http, persis, context.getSender(), context.getRoom(), this.command);
+
+    if (transfersResult.hasError()) {
+      if (transfersResult.error === 'token') {
+        return {
+          i18nTitle: 'Token not found!',
+          items,
+        };
       }
-    });
-
-    const persistence = new AppPersistence(persis, read.getPersistenceReader());
-    const token = await persistence.getUserToken(context.getSender());
-    if (!token) {
-      // tslint:disable-next-line:max-line-length
-      await msgHelper.sendNotification('Token not found! Login using `/putio-login` and then set the token using `/putio-set-token`', read, modify, context.getSender(), context.getRoom());
-      return;
+      if (transfersResult.error === '401') {
+        return {
+          i18nTitle: 'Token Expired!',
+          items,
+        };
+      }
+      return {
+        i18nTitle: transfersResult.error,
+        items,
+      };
     }
 
-    const url = 'https://api.put.io/v2/transfers/cancel';
-    const response = await http.post(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      data: {
-        transfer_ids: args.join(','),
-      },
-    });
+    if (transfersResult.item && transfersResult.item && Array.isArray(transfersResult.item._FullList) && transfersResult.item._FullList.length > 0) {
+      const transfers = transfersResult.item._FullList;
 
-    if (!response) {
-      await msgHelper.sendNotification('Failed to get a valid response!', read, modify, context.getSender(), context.getRoom());
-      return;
+      const matchingTransfers = transfers.filter((transfer) => {
+        const transferTitle: string = transfer.name;
+        if (!transferName) {
+          return true;
+        }
+        return transferTitle.toLowerCase().trim().indexOf(transferName) !== -1 ||
+          transfer.id.toString().indexOf(transferName) !== -1
+      });
+      if (matchingTransfers.length > 0) {
+        let countForPreview = 10;
+        if (matchingTransfers.length < countForPreview) {
+          countForPreview =  matchingTransfers.length;
+        }
+        for (let x = 0; x < countForPreview; x++) {
+          const transfer = matchingTransfers[x];
+          items.push({
+            id: transfer.id.toString(),
+            type: SlashCommandPreviewItemType.TEXT,
+            value: transfer.name,
+          });
+        }
+      } else if (matchingTransfers.length === 0 && transfers.length > 0) {
+        resultsTitle = 'No transfers found for name or id';
+      } else {
+        resultsTitle = 'No Results!';
+      }
     }
-    if (response.statusCode === 401) {
-      await msgHelper.sendTokenExpired(read, modify, context.getSender(), context.getRoom(), persis);
-      return;
-    }
-    if (response.statusCode !== 200 || !response.content) {
-      await msgHelper.sendNotification('Failed to get a valid response!', read, modify, context.getSender(), context.getRoom());
-      return;
-    }
+    return {
+      i18nTitle: resultsTitle,
+      items,
+    };
+  }
 
-    await msgHelper.sendNotification('Successfully ran cancel command on transfer!', read, modify, context.getSender(), context.getRoom());
+  public async executePreviewItem(item: ISlashCommandPreviewItem, context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
+    await cancelTransfer([item.id], read, modify, http, persis, context.getSender(), context.getRoom(), this.command);
     return;
   }
 }

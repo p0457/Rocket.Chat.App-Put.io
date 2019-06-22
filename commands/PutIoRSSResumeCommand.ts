@@ -16,7 +16,7 @@ export class PutIoRSSResumeCommand implements ISlashCommand {
   public constructor(private readonly app: PutIoApp) {}
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-    await resumeRss(context.getArguments(), read, modify, http, persis, context.getSender(), context.getRoom());
+    await resumeRss(context.getArguments(), read, modify, http, persis, context.getSender(), context.getRoom(), this.command);
     return;
   }
 
@@ -49,8 +49,8 @@ export class PutIoRSSResumeCommand implements ISlashCommand {
         };
       }
 
-      if (rssResult.item && rssResult.item && Array.isArray(rssResult.item.feeds) && rssResult.item.feeds.length > 0) {
-        const feeds = rssResult.item.feeds;
+      if (rssResult.item && rssResult.item && Array.isArray(rssResult.item._FullList) && rssResult.item._FullList.length > 0) {
+        const feeds = rssResult.item._FullList;
 
         const resumeableFeeds = feeds.filter((feed) => {
           const feedTitle: string = feed.title;
@@ -87,7 +87,7 @@ export class PutIoRSSResumeCommand implements ISlashCommand {
   }
 
   public async executePreviewItem(item: ISlashCommandPreviewItem, context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-    await resumeRss([item.id], read, modify, http, persis, context.getSender(), context.getRoom());
+    await resumeRss([item.id], read, modify, http, persis, context.getSender(), context.getRoom(), this.command);
     return;
   }
 }
