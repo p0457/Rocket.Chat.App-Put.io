@@ -37,13 +37,14 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
 
           const payload = request.content;
 
-          const avatarUrl = await read.getEnvironmentReader().getSettings().getValueById('putio_icon');
-          const alias = await read.getEnvironmentReader().getSettings().getValueById('putio_name');
-          const sender = await read.getUserReader().getById('rocket.cat');
+          const avatarUrl = await read.getEnvironmentReader().getSettings().getValueById('icon');
+          const alias = await read.getEnvironmentReader().getSettings().getValueById('name');
+          const senderName = await read.getEnvironmentReader().getSettings().getValueById('sender');
+          const sender = await read.getUserReader().getById(senderName);
 
           let room;
           if (roomToSend.startsWith('@')) {
-            room = await read.getRoomReader().getDirectByUsernames(['rocket.cat', roomToSend.substring(1, roomToSend.length)]);
+            room = await read.getRoomReader().getDirectByUsernames([senderName, roomToSend.substring(1, roomToSend.length)]);
           } else if (roomToSend.startsWith('#')) {
             room = await read.getRoomReader().getByName(roomToSend.substring(1, roomToSend.length));
           }

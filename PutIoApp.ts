@@ -29,17 +29,27 @@ export class PutIoApp extends App {
 
     protected async extendConfiguration(configuration: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
       await configuration.settings.provideSetting({
-        id: 'putio_name',
+        id: 'sender',
+        type: SettingType.STRING,
+        packageValue: 'putio.bot',
+        required: true,
+        public: false,
+        i18nLabel: 'customize_sender',
+        i18nDescription: 'customize_sender_description',
+      });
+
+      await configuration.settings.provideSetting({
+        id: 'name',
         type: SettingType.STRING,
         packageValue: 'Put.io',
         required: true,
         public: false,
-        i18nLabel: 'customize_name',
-        i18nDescription: 'customize_name_description',
+        i18nLabel: 'customize_alias',
+        i18nDescription: 'customize_alias_description',
       });
 
       await configuration.settings.provideSetting({
-        id: 'putio_icon',
+        id: 'icon',
         type: SettingType.STRING,
         packageValue: 'https://github.com/tgardner851/Rocket.Chat.App-Put.io/raw/master/icon.png',
         required: true,
@@ -61,7 +71,7 @@ export class PutIoApp extends App {
       });
 
       await configuration.settings.provideSetting({
-        id: 'putio_clientid',
+        id: 'clientid',
         type: SettingType.STRING,
         packageValue: '',
         required: true,
@@ -71,7 +81,7 @@ export class PutIoApp extends App {
       });
 
       await configuration.settings.provideSetting({
-        id: 'putio_clientsecret',
+        id: 'clientsecret',
         type: SettingType.STRING,
         packageValue: '',
         required: true,

@@ -4,6 +4,7 @@ import { IMessageAttachment, MessageActionType, MessageProcessingType } from '@r
 import { formatBytes } from '../lib/helpers/bytesConverter';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
+import { login } from '../lib/helpers/login';
 
 export class OAuthWebhookEndpooint extends ApiEndpoint {
     public path = 'oauth-callback';
@@ -28,28 +29,42 @@ export class OAuthWebhookEndpooint extends ApiEndpoint {
           if (userAuthAttempt) {
             const user = await read.getUserReader().getByUsername(userAuthAttempt.userName);
             const room = userAuthAttempt.room;
-            await msgHelper.sendNotificationMultipleAttachments([
-              {
-                collapsed: false,
-                color: '#fdcd44',
-                title: {
-                  value: 'Action needed',
-                },
-                // tslint:disable-next-line:max-line-length
-                text: 'Due to a shortcoming in the Rocket.Chat App engine API, this app cannot access the access token since it is provided as `#access_token=XXXX`\n'
-                  + 'You will need to copy this token and use in in a command `/putio-set-token [TOKEN]`\n'
-                  + 'Copy this value (after the "#access_token=") and use in the actioned command provided.',
-                actions: [
-                  {
-                    type: MessageActionType.BUTTON,
-                    text: 'Set Token',
-                    msg: '/putio-set-token PUT_TOKEN_HERE',
-                    msg_in_chat_window: true,
-                    msg_processing_type: MessageProcessingType.RespondWithMessage,
+
+            const token = request.query.access_token;
+            let tokenSaved = false;
+            if (token) {
+              try {
+                await login(http, token, persis, read, modify, user, room);
+                tokenSaved = true;
+              }
+              catch(e) {
+                tokenSaved = false;
+              }
+            }
+            if (!tokenSaved) {
+              await msgHelper.sendNotificationMultipleAttachments([
+                {
+                  collapsed: false,
+                  color: '#fdcd44',
+                  title: {
+                    value: 'Action needed',
                   },
-                ],
-              },
-            ], read, modify, user, room);
+                  // tslint:disable-next-line:max-line-length
+                  text: 'Due to a shortcoming in the Rocket.Chat App engine API, this app cannot access the access token since it is provided as `#access_token=XXXX`\n'
+                    + 'You will need to copy this token and use in in a command `/putio-set-token [TOKEN]`\n'
+                    + 'Copy this value (after the "#access_token=") and use in the actioned command provided.',
+                  actions: [
+                    {
+                      type: MessageActionType.BUTTON,
+                      text: 'Set Token',
+                      msg: '/putio-set-token PUT_TOKEN_HERE',
+                      msg_in_chat_window: true,
+                      msg_processing_type: MessageProcessingType.RespondWithMessage,
+                    },
+                  ],
+                },
+              ], read, modify, user, room);
+            }
           }
         }
         return this.success();

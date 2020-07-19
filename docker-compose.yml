@@ -3,6 +3,6 @@
 version: '1'
 
 services:
-  rocketchatapp_jitsi:
+  rocketchatapp_putio:
     image: rocketchatapp_putio:latest
     container_name: rocketchatapp_putio

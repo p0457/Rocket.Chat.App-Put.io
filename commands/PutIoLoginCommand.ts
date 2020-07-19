@@ -32,8 +32,8 @@ export class PutIoLoginCommand implements ISlashCommand {
   }
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-    const clientId = await read.getEnvironmentReader().getSettings().getValueById('putio_clientid');
-    const clientSecret = await read.getEnvironmentReader().getSettings().getValueById('putio_clientsecret');
+    const clientId = await read.getEnvironmentReader().getSettings().getValueById('clientid');
+    const clientSecret = await read.getEnvironmentReader().getSettings().getValueById('clientsecret');
     let rootUrl = await read.getEnvironmentReader().getEnvironmentVariables().getValueByName('ROOT_URL');
     if (rootUrl.endsWith('/')) {
       rootUrl = rootUrl.substring(0, rootUrl.length - 1); // remove last '/'

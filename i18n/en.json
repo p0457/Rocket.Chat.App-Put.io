@@ -1,6 +1,8 @@
 {
-  "customize_name": "Customize Name",
-  "customize_name_description": "Choose the username that this app will post as.",
+  "customize_sender": "Customize Sender",
+  "customize_sender_description": "Choose the user that this app will post as.",
+  "customize_alias": "Customize Alias",
+  "customize_alias_description": "Choose the alias that this app will post as.",
   "customize_icon": "Customize Icon",
   "customize_icon_description": "Choose the icon that is used for messages from this app.",
   "customize_clientid": "Client Id",

@@ -5,6 +5,7 @@ import { uuidv4 } from '../lib/helpers/guidCreator';
 import * as msgHelper from '../lib/helpers/messageHelper';
 import { AppPersistence } from '../lib/persistence';
 import { PutIoApp } from '../PutIoApp';
+import { login } from '../lib/helpers/login';
 
 export class PutIoSetTokenCommand implements ISlashCommand {
   public command = 'putio-set-token';
@@ -41,49 +42,8 @@ export class PutIoSetTokenCommand implements ISlashCommand {
       return;
     }
 
-    const persistence = new AppPersistence(persis, read.getPersistenceReader());
-    await persistence.setUserToken(token, context.getSender());
+    await login(http, token, persis, read, modify, context.getSender(), context.getRoom());
 
-    const accountInfoUrl = 'https://api.put.io/v2/account/info';
-    const accountInfoResponse = await http.get(accountInfoUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!accountInfoResponse || accountInfoResponse.statusCode === 401 || !accountInfoResponse.content) {
-      await msgHelper.sendNotification('Failed to get account info! Token may not be valid.', read, modify, context.getSender(), context.getRoom());
-      return;
-    }
-
-    const accountInfo = JSON.parse(accountInfoResponse.content);
-    if (!accountInfo.info) {
-      await msgHelper.sendNotification('Failed to parse results!', read, modify, context.getSender(), context.getRoom());
-      return;
-    }
-
-    await persistence.setUserAvatarUrl(accountInfo.info.avatar_url, context.getSender());
-
-    await msgHelper.sendNotificationMultipleAttachments([
-      {
-        collapsed: false,
-        color: '#00CE00',
-        title: {
-          value: 'Token saved!',
-        },
-      },
-    ], read, modify, context.getSender(), context.getRoom());
-
-    await msgHelper.sendAccountInfo(accountInfo.info, read, modify, context.getSender(), context.getRoom());
-
-    // Remove the auth attempt from persistence
-    let currentAuthAttempts = await persistence.getAuthAttempts();
-    if (currentAuthAttempts) {
-      currentAuthAttempts = currentAuthAttempts.filter((authAttempt) => {
-        return authAttempt.userName !== context.getSender().username;
-      });
-      await persistence.setAuthAttempts(currentAuthAttempts);
-    }
     return;
   }
 }
