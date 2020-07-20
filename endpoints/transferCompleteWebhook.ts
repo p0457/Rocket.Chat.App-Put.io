@@ -11,7 +11,7 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
 
     @example({
       query: {
-          rooms: '@user,#room',
+          rooms: '@user,room',
       },
     })
     public async post(
@@ -45,8 +45,8 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
           let room;
           if (roomToSend.startsWith('@')) {
             room = await read.getRoomReader().getDirectByUsernames([senderName, roomToSend.substring(1, roomToSend.length)]);
-          } else if (roomToSend.startsWith('#')) {
-            room = await read.getRoomReader().getByName(roomToSend.substring(1, roomToSend.length));
+          } else  {
+            room = await read.getRoomReader().getByName(roomToSend);
           }
 
           let cancelText = 'Cancel';
