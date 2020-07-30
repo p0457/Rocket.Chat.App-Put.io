@@ -60,6 +60,7 @@ export class TransferCompleteWebhookEndpooint extends ApiEndpoint {
           if (room) {
             const attachments = new Array<IMessageAttachment>();
             attachments.push({
+              collapsed: true,
               color: '#fdce45',
               title: {
                 value: payload.name,
